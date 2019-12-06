@@ -9,7 +9,7 @@ services:
     restart: unless-stopped
     volumes:
       - /dev/net:/dev/net:z # tun device
-      - ${ROOT}/config/vpn:/vpn # OpenVPN configuration
+      - ${CONFIG}/vpn:/vpn # OpenVPN configuration
     security_opt:
       - label:disable
     ports:
@@ -26,8 +26,8 @@ services:
       - PGID=${PGID} # default group id, defined in .env
       - TZ=${TZ} # timezone, defined in .env
     volumes:
-      - ${ROOT}/downloads:/downloads # downloads folder
-      - ${ROOT}/config/deluge:/config # config files
+      - ${ROOT}/media-share/Complete Torrents:/downloads # downloads folder
+      - ${CONFIG}/deluge:/config # config files
 
   jackett:
     container_name: jackett
@@ -41,7 +41,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${ROOT}/downloads/torrent-blackhole:/downloads # place where to put .torrent files for manual download
-      - ${ROOT}/config/jackett:/config # config files
+      - ${CONFIG}/jackett:/config # config files
 
   nzbget:
     container_name: nzbget
@@ -53,8 +53,8 @@ services:
       - PGID=${PGID} # default group id, defined in .env
       - TZ=${TZ} # timezone, defined in .env
     volumes:
-      - ${ROOT}/downloads:/downloads # download folder
-      - ${ROOT}/config/nzbget:/config # config files
+      - ${ROOT}/media-share/Incoming Torrents/downloads:/downloads # download folder
+      - ${CONFIG}/nzbget:/config # config files
 
   sonarr:
     container_name: sonarr
@@ -67,9 +67,9 @@ services:
       - TZ=${TZ} # timezone, defined in .env
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${ROOT}/config/sonarr:/config # config files
-      - ${ROOT}/complete/tv:/tv # tv shows folder
-      - ${ROOT}/downloads:/downloads # download folder
+      - ${CONFIG}/sonarr:/config # config files
+      - ${ROOT}/media-share/Complete Torrents/tv:/tv # movies folder
+      - ${ROOT}/media-share/Incoming Torrents/tv:/downloads # download folder
 
   radarr:
     container_name: radarr
@@ -82,18 +82,41 @@ services:
       - TZ=${TZ} # timezone, defined in .env
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${ROOT}/config/radarr:/config # config files
-      - ${ROOT}/complete/movies:/movies # movies folder
-      - ${ROOT}/downloads:/downloads # download folder
+      - ${CONFIG}/radarr:/config # config files
+      - ${ROOT}/media-share/Complete Torrents/movies:/movies # movies folder
+      - ${ROOT}/media-share/Incoming Torrents/movies:/downloads # download folder
 
-  plex-server:
-    container_name: plex-server
+  plex:
+    container_name: plex
     image: plexinc/pms-docker:latest
     restart: unless-stopped
     environment:
-      - TZ=${TZ} # timezone, defined in .env
+      - TZ=${TZ}                            # timezone, defined in .env
+      - PUID=${PUID}                        # default user id, defined in .env
+      - PGID=${PGID}                        # default group id, defined in .env
+      - ADVERTISE_IP=https://metis.local:32400
+      - HOSTNAME=metis
     network_mode: host
+    devices:
+      - /dev/dri:/dev/dri
     volumes:
-      - ${ROOT}/config/plex/db:/config # plex database
-      - ${ROOT}/config/plex/transcode:/transcode # temp transcoded files
-      - ${ROOT}/complete:/data # media library
+      - ${CONFIG}/plex/db:/config           # plex database
+      - ${CONFIG}/plex/transcode:/transcode # temp transcoded files
+      - ${ROOT}/media-share:/data           # media library
+
+#  grafana:
+#    container_name: grafana
+#    image: grafana/grafana:latest
+#    # user: "999"
+#    restart: unless-stopped
+#    network_mode: host
+#    environment:
+#      - TZ=${TZ} # timezone, defined in .env
+#      - GF_SERVER_ROOT_URL:http://metis.local
+#      - GF_INSTALL_PLUGINS="grafana-clock-panel,grafana-simple-json-datasource,andig-darksky-datasource,grafana-piechart-panel"
+#    volumes:
+#      - /etc/localtime:/etc/localtime:ro
+#      - ./grafana:/var/lib/grafana
+#    ports:
+#      - 3000:3000
+
