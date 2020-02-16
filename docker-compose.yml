@@ -68,7 +68,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${CONFIG}/sonarr:/config # config files
-      - ${ROOT}/media-share/Complete Torrents/tv:/tv # movies folder
+      - ${ROOT}/media-share/TV Shows:/tv # movies folder
       - ${ROOT}/media-share/Incoming Torrents/tv:/downloads # download folder
 
   radarr:
@@ -77,13 +77,13 @@ services:
     restart: unless-stopped
     network_mode: host
     environment:
-      - PUID=${PUID} # default user id, defined in .env
-      - PGID=${PGID} # default group id, defined in .env
-      - TZ=${TZ} # timezone, defined in .env
+      - PUID=${PUID}            # default user id, defined in .env
+      - PGID=${PGID}            # default group id, defined in .env
+      - TZ=${TZ}                # timezone, defined in .env
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${CONFIG}/radarr:/config # config files
-      - ${ROOT}/media-share/Complete Torrents/movies:/movies # movies folder
+      - ${ROOT}/media-share/Movies:/movies # movies folder
       - ${ROOT}/media-share/Incoming Torrents/movies:/downloads # download folder
 
   plex:
